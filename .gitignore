@@ -1,0 +1,5 @@
+migrations/
+.env
+instance/
+__pycache__/
+scissor/

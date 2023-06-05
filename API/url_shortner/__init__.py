@@ -1,0 +1,1 @@
+from .url_short import url_namespace
