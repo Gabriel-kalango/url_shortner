@@ -70,7 +70,7 @@ class Url_shortDel(Resource):
     def delete(self,id):
         url=Url_link.query.get_or_404(id)
         url.delete()
-        return {"message":"url has been successfully deleted"}
+        return {"message":"url has been successfully deleted"},200
     
 
 @url_namespace.route("/<short_url>")
@@ -117,7 +117,7 @@ class Url_qrcode(Resource):
             link.qrcode_filename=filename
             
             db.session.commit()
-            return {"message":"your qrcode has been uploaded"}
+            return {"message":"your qrcode has been uploaded"},201
         abort(400,message="the qrcode filename is  saved in the database")   
         
     @jwt_required()
@@ -136,7 +136,7 @@ class Url_qrcode(Resource):
             absolute_path=os.path.abspath(file_path_)
             print(absolute_path)
         
-            return send_file(absolute_path)
+            return send_file(absolute_path),200
 
    
 

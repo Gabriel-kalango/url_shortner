@@ -8,6 +8,7 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from .model import BlocklistModel
 from flask_caching import Cache
+from flask_cors import CORS
 
 
 
@@ -17,7 +18,7 @@ def create_app(config=config_dict["prod"]):
     app=Flask(__name__)
     app.config.from_object(config)
     db.init_app(app)
-    
+    CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "DELETE"], "headers": "Content-Type, Authorization"}}, supports_credentials=True)
     cache.init_app(app)
     migrate=Migrate(app,db)
     
