@@ -13,7 +13,7 @@ from flask_caching import Cache
 
 
 # creating the flask application
-def create_app(config=config_dict["dev"]):
+def create_app(config=config_dict["prod"]):
     app=Flask(__name__)
     app.config.from_object(config)
     db.init_app(app)
