@@ -34,3 +34,4 @@ marshmallow
 flask-socketio
 flask-caching
 qrcode
+flask_cors
