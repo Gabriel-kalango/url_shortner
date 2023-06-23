@@ -10,11 +10,15 @@ class Config:
     JWT_SECRET_KEY = config('JWT_SECRET_KEY')
     UPLOADED_IMAGES_DEST=os.path.join("api","static","images")
     MAX_CONTENT_LENGTH=10*1024*1024
+    CACHE_TYPE = 'SimpleCache'
+    CACHE_DEFAULT_TIMEOUT = 300
+    PROPAGATE_EXCEPTIONS=True
 
 class DevConfig(Config):
     DEBUG = config('DEBUG', cast=bool)
     SQLALCHEMY_ECHO=True
     SQLALCHEMY_DATABASE_URI=os.getenv("DATABASE_URL", "sqlite:///food.db")
+    
 
 class TestConfig(Config):
     TESTING = True

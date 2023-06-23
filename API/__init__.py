@@ -1,12 +1,13 @@
 from flask import Flask,jsonify
 from flask_restx import Api
 from .config.config import config_dict
-from .utils import db
+from .utils import db,cache
 from .url_shortner import url_namespace
 from .user import user_namespace
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from .model import BlocklistModel
+from flask_caching import Cache
 
 
 
@@ -16,6 +17,8 @@ def create_app(config=config_dict["dev"]):
     app=Flask(__name__)
     app.config.from_object(config)
     db.init_app(app)
+    
+    cache.init_app(app)
     migrate=Migrate(app,db)
     
     
