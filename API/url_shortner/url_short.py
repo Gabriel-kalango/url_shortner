@@ -26,7 +26,7 @@ class Url_Shorten(Resource):
         #check if the long url has already be shortened 
         if url.is_valid_url(data.get("long_url")):
             if Url_link.query.filter(Url_link.long_url==data.get("long_url"),Url_link.user_id==user_id).first():
-                abort(400,message='this url has been shortened by you ')
+                return {"status":"error","message":"this url has already been shortened by you"},400
 
             number_suffix=random.randint(100,999)
             letter_suffix=random.sample(url.alphabet,3)
@@ -35,7 +35,7 @@ class Url_Shorten(Resource):
             if custom_backhalf is not None:
                 if Url_link.query.filter(Url_link.custom_backhalf==custom_backhalf,Url_link.user_id==user_id).first():
                 
-                    abort(400,message='this custom backhalf has been used by you ')
+                    {"status":"error","message":"this custom backhalf has already been used by you"},400
                 short_url=f"{custom_backhalf}"
                 new_url=Url_link(short_url=short_url,long_url=data.get("long_url"),user_id=user_id,custom_backhalf=custom_backhalf)
                  
@@ -50,7 +50,7 @@ class Url_Shorten(Resource):
             
             new_url.save()
             return new_url,201            
-        abort(400,message='The url link is not valid')
+        return {"status":"error","message":"this url is invalid"},400
 @url_namespace.route("")
 class Url_short(Resource):
      @url_namespace.marshal_with(url_short)
@@ -70,7 +70,7 @@ class Url_shortDel(Resource):
     def delete(self,id):
         url=Url_link.query.get_or_404(id)
         url.delete()
-        return {"message":"url has been successfully deleted"},200
+        return {"status":"success","message":"url has been successfully deleted"},200
     
 
 @url_namespace.route("/<short_url>")
@@ -84,7 +84,7 @@ class Url_Shortened(Resource):
             db.session.commit()
             return redirect(url.long_url, code=302)
         else:
-            return "Short URL not found", 404
+            return {"status":"error","message":"Short URL not found"} ,404
 
 @url_namespace.route("/<short_url>/qrcode")
 class Url_qrcode(Resource):
@@ -117,8 +117,8 @@ class Url_qrcode(Resource):
             link.qrcode_filename=filename
             
             db.session.commit()
-            return {"message":"your qrcode has been uploaded"},201
-        abort(400,message="the qrcode filename is  saved in the database")   
+            return {"status":"success","message":"your qrcode has been uploaded"},201
+        return {"status":"error","message":"the qrcode filename is already in the database"} ,400 
         
     @jwt_required()
     def get(self, short_url):
@@ -141,4 +141,4 @@ class Url_qrcode(Resource):
    
 
         except FileNotFoundError:
-            abort(404,message=f"file not found ")
+              return {"status":"error","message":"the qrcode filename not found"} ,404

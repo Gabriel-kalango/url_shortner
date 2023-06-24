@@ -81,4 +81,14 @@ def create_app(config=config_dict["prod"]):
             ),
             401,
         )
+    @app.errorhandler(400)
+    def handle_bad_request(error):
+        response = jsonify(error=str(error))
+        response.status_code = 400
+        return response
+    @app.errorhandler(404)
+    def handle_bad_request(error):
+        response = jsonify(error=str(error))
+        response.status_code = 404
+        return response
     return app
