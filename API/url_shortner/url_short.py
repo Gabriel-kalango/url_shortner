@@ -23,19 +23,22 @@ class Url_Shorten(Resource):
         '''endpoint for shortening of url'''
         data=url_namespace.payload
         user_id=get_jwt_identity()
+        number_suffix=random.randint(100,999)
+        letter_suffix=random.sample(url.alphabet,3)
+        string_letter_suffix="".join(letter_suffix)
+        custom_backhalf=data.get("custom_backhalf")
         #check if the long url has already be shortened 
         if url.is_valid_url(data.get("long_url")):
             if Url_link.query.filter(Url_link.long_url==data.get("long_url"),Url_link.user_id==user_id).first():
-                return {"status":"error","message":"this url has already been shortened by you"},400
-
-            number_suffix=random.randint(100,999)
-            letter_suffix=random.sample(url.alphabet,3)
-            string_letter_suffix="".join(letter_suffix)
-            custom_backhalf=data.get("custom_backhalf")
+                abort(400,message="this url has already be shortened by you",status="error")
+            # if Url_link.query.filter(Url_link.long_url==data.get("long_url"),Url_link.user_id==user_id,Url_link.custom_backhalf==custom_backhalf).first():
+            #     return {"status":"error",
+            #             "message":"this url has already been shortened by you"},400
+            
             if custom_backhalf is not None:
                 if Url_link.query.filter(Url_link.custom_backhalf==custom_backhalf,Url_link.user_id==user_id).first():
                 
-                    {"status":"error","message":"this custom backhalf has already been used by you"},400
+                    return {"status":"error","message":"this custom backhalf has already been used by you"},400
                 short_url=f"{custom_backhalf}"
                 new_url=Url_link(short_url=short_url,long_url=data.get("long_url"),user_id=user_id,custom_backhalf=custom_backhalf)
                  

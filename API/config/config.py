@@ -17,7 +17,7 @@ class Config:
 class DevConfig(Config):
     DEBUG = config('DEBUG', cast=bool)
     SQLALCHEMY_ECHO=True
-    SQLALCHEMY_DATABASE_URI=os.getenv("DATABASE_URL", "sqlite:///food.db")
+    SQLALCHEMY_DATABASE_URI= "sqlite:///food.db"
     
 
 class TestConfig(Config):
