@@ -31,14 +31,12 @@ class Url_Shorten(Resource):
         if url.is_valid_url(data.get("long_url")):
             if Url_link.query.filter(Url_link.long_url==data.get("long_url"),Url_link.user_id==user_id).first():
                 abort(400,message="this url has already be shortened by you",status="error")
-            # if Url_link.query.filter(Url_link.long_url==data.get("long_url"),Url_link.user_id==user_id,Url_link.custom_backhalf==custom_backhalf).first():
-            #     return {"status":"error",
-            #             "message":"this url has already been shortened by you"},400
+            
             
             if custom_backhalf is not None:
                 if Url_link.query.filter(Url_link.custom_backhalf==custom_backhalf,Url_link.user_id==user_id).first():
                 
-                    return {"status":"error","message":"this custom backhalf has already been used by you"},400
+                   abort(400,message="this custom_backhalf has already been used  by you",status="error")
                 short_url=f"{custom_backhalf}"
                 new_url=Url_link(short_url=short_url,long_url=data.get("long_url"),user_id=user_id,custom_backhalf=custom_backhalf)
                  
@@ -134,14 +132,19 @@ class Url_qrcode(Resource):
 
             
             
-            qr_file_path=f"API\static\qr_codes\{link.qrcode_filename}"
-            file_path_=os.path.join(current_dir,qr_file_path)
-            absolute_path=os.path.abspath(file_path_)
-            print(absolute_path)
+             
+            qr_file_path = os.path.join(current_dir, 'API', 'static', 'qr_codes', link.qrcode_filename)
         
-            return send_file(absolute_path),200
+            absolute_path=os.path.abspath(qr_file_path)
+            # print(absolute_path)
+            print(qr_file_path)
+            print(absolute_path)
+            return {"status":"success","qr_code_file_path":str(absolute_path)}
 
    
-
+        except Exception as e:
+                return {"error": str(e)}, 500
         except FileNotFoundError:
               return {"status":"error","message":"the qrcode filename not found"} ,404
+        
+        
