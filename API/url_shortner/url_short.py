@@ -54,7 +54,7 @@ class Url_Shorten(Resource):
             
             new_url.save()
             return new_url,201            
-        return {"status":"error","message":"this url is invalid"},400
+        abort(400,message="invalid url,did you ommit the http?",status="error")
 @url_namespace.route("")
 class Url_short(Resource):
      @url_namespace.doc(security="jwt")
@@ -66,7 +66,7 @@ class Url_short(Resource):
      def get(self):
          '''get all the links shortened by a particular user'''
          user_id=get_jwt_identity()
-         user=User.query.get_or_404(user_id)
+         
          links=Url_link.query.filter(Url_link.user_id==user_id).all()
          return links,200
 
