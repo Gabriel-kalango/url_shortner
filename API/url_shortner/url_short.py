@@ -61,7 +61,7 @@ class Url_short(Resource):
      @url_namespace.marshal_with(url_short)
      @url_namespace.response(200, url_short)
      @jwt_required()
-     @cache.cached(timeout=3600)
+     @cache.cached(timeout=3600,key_prefix=lambda: f"user_links:{get_jwt_identity()}")
      @url_namespace.response(400, 'Bad Request')
      def get(self):
          '''get all the links shortened by a particular user'''
