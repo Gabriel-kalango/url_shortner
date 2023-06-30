@@ -18,6 +18,9 @@ import uuid
 class Url_Shorten(Resource):
     @url_namespace.marshal_with(url_short)
     @url_namespace.expect(url_short)
+    @url_namespace.response(201, 'URL successfully shortened', url_short)
+    @url_namespace.response(400, 'Bad Request')
+    @url_namespace.doc(security="jwt")
     @jwt_required()
     def post(self):
         '''endpoint for shortening of url'''
@@ -54,9 +57,12 @@ class Url_Shorten(Resource):
         return {"status":"error","message":"this url is invalid"},400
 @url_namespace.route("")
 class Url_short(Resource):
+     @url_namespace.doc(security="jwt")
      @url_namespace.marshal_with(url_short)
+     @url_namespace.response(200, url_short)
      @jwt_required()
      @cache.cached(timeout=3600)
+     @url_namespace.response(400, 'Bad Request')
      def get(self):
          '''get all the links shortened by a particular user'''
          user_id=get_jwt_identity()
@@ -68,7 +74,12 @@ class Url_short(Resource):
         
 @url_namespace.route("/remove/<id>")
 class Url_shortDel(Resource):
+    @url_namespace.response(200, "url has been successfully deleted")
+    @url_namespace.response(400, 'Bad Request')
+    @url_namespace.doc(security="jwt")
+    @jwt_required()
     def delete(self,id):
+        """delete the short url"""
         url=Url_link.query.get_or_404(id)
         url.delete()
         return {"status":"success","message":"url has been successfully deleted"},200
@@ -77,7 +88,12 @@ class Url_shortDel(Resource):
 @url_namespace.route("/<short_url>")
 class Url_Shortened(Resource):
     @cache.memoize(timeout=3600)
+    @jwt_required()
+    @url_namespace.doc(security="jwt")
+    @url_namespace.response(200, "url redirect successful")
+    @url_namespace.response(400, 'Bad Request')
     def get(self,short_url):
+        """Redirecting the short url to long URL"""
         url=Url_link.query.filter(Url_link.short_url==short_url).first()
 
         if url:
@@ -90,6 +106,9 @@ class Url_Shortened(Resource):
 @url_namespace.route("/<short_url>/qrcode")
 class Url_qrcode(Resource):
     @jwt_required()
+    @url_namespace.doc(security="jwt")
+    @url_namespace.response(200, "qrcode has been uploaded")
+    @url_namespace.response(400, 'Bad Request')
     def post(self,short_url):
         """Get the QR code for a long url"""
         link = Url_link.query.filter(Url_link.short_url==short_url).first_or_404()
@@ -122,6 +141,9 @@ class Url_qrcode(Resource):
         return {"status":"error","message":"the qrcode filename is already in the database"} ,400 
         
     @jwt_required()
+    @url_namespace.response(200, "qrcode is saved in database")
+    @url_namespace.response(400, 'Bad Request')
+    @url_namespace.doc(security="jwt")
     def get(self, short_url):
         """Get the QR code image for a long URL"""
         link = Url_link.query.filter(Url_link.short_url == short_url).first_or_404()

@@ -8,7 +8,12 @@ from ..schema import user_namespace,User_login,User_signup
 class UserSignin(Resource):
     # endpoint for creating users
     @user_namespace.expect(User_signup)
+    @user_namespace.response(200,"user created successfully")
+    @user_namespace.response(400,"user with this email already exists")
     def post(self):
+        """
+            user registeration
+        """
         data=user_namespace.payload
         if User.query.filter(User.email==data.get("email")).first():
             return {"status":"error","message":"user with this email already exist"},400
@@ -24,8 +29,12 @@ class UserSignin(Resource):
 class UserLogin(Resource):
     #endpoint for logging in users
     @user_namespace.expect(User_login)
-    
+    @user_namespace.response(200,"user has been logged in",User_login)
+    @user_namespace.response(400,"invalid credentials")
     def post(self):
+        """
+        Generate access token
+        """
         data=user_namespace.payload
         user= User.query.filter(User.email==data.get("email")).first()
         if user and check_password_hash(user.password,data.get("password")):
@@ -37,7 +46,14 @@ class UserLogin(Resource):
 @user_namespace.route("/logout")   
 class Logout(Resource):
     @jwt_required()
+    @user_namespace.doc(security="jwt")
+    @user_namespace.response(200,"user has been logged out")
+    @user_namespace.response(400,"user not logged in")
+
     def post(self):
+        """
+            logout endpoint
+        """
         jti=get_jwt().get("jti")
         j_ti=BlocklistModel(jwt=jti)
         j_ti.save()
@@ -45,7 +61,9 @@ class Logout(Resource):
     
 @user_namespace.route('/refresh')
 class Refresh(Resource):
-
+    @user_namespace.doc(security="jwt")
+    @user_namespace.response(201,"access token generated")
+    @user_namespace.response(400,"user not logged in")
     @jwt_required(refresh=True)
     def post(self):
         """
