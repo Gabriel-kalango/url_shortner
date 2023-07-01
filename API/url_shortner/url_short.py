@@ -6,7 +6,7 @@ import random
 from ..model import Url_link,User
 from flask_jwt_extended import jwt_required,get_jwt_identity
 from sqlalchemy import and_
-from flask import redirect,send_file
+from flask import redirect,send_file,request
 import qrcode
 from ..utils import cache,db
 import os
@@ -64,11 +64,19 @@ class Url_short(Resource):
      @cache.cached(timeout=3600,key_prefix=lambda: f"user_links:{get_jwt_identity()}")
      @url_namespace.response(400, 'Bad Request')
      def get(self):
-         '''get all the links shortened by a particular user'''
-         user_id=get_jwt_identity()
-         
-         links=Url_link.query.filter(Url_link.user_id==user_id).all()
-         return links,200
+        '''get all the links shortened by a particular user'''
+        user_id=get_jwt_identity()
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        cache_key = f"user_links:{user_id}:{page}:{per_page}"
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return cached_result
+        links=Url_link.query.filter(Url_link.user_id==user_id).order_by(Url_link.date_posted.desc()).paginate(page=page, per_page=per_page)
+        response_headers = {'X-Total-Count': links.total}
+        result = links.items, 200, response_headers
+        cache.set(cache_key, result)
+        return result
 
 
         

@@ -13,6 +13,8 @@ class Config:
     CACHE_TYPE = 'SimpleCache'
     CACHE_DEFAULT_TIMEOUT = 300
     PROPAGATE_EXCEPTIONS=True
+    CACHE_DEFAULT_SERIALIZER = 'json'
+
 
 class DevConfig(Config):
     DEBUG = config('DEBUG', cast=bool)

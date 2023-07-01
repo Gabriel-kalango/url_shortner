@@ -5,5 +5,7 @@ url_short=url_namespace.model("url_short",{
     "short_url":fields.String(),
     "long_url":fields.String(required=True),
     "custom_backhalf":fields.String(),
-    "click":fields.Integer()
+    "click":fields.Integer(),
+    "date_posted":fields.DateTime(description="time it was posted",dt_format='rfc822'),
+    "qrcode_filename":fields.String(description="the filename for the qrcode")
 })
