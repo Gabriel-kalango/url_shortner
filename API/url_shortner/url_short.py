@@ -108,7 +108,7 @@ class Url_Shortened(Resource):
         if url:
             url.click+=1
             db.session.commit()
-            return {"clicks":url.click}
+            return redirect(url.long_url, code=302)
         else:
             return {"status":"error","message":"Short URL not found"} ,404
 
